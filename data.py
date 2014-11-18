@@ -2,9 +2,7 @@ from collections import Counter
 import operator
 
 class Data:
-    """
-    Class that contains data (e.g. names, number of students, seminar lists)
-    """
+    """ Class that contains data (e.g. names, number of students, seminar lists)"""
     def __init__(self, names, topFives, fallList, springList):
         """Create a new instance"""
 
