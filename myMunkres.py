@@ -328,41 +328,41 @@ class Munkres:
 
     make_cost_matrix = staticmethod(make_cost_matrix)
 
-    def pad_matrix(self, matrix, pad_value=0):
-        """
-        Pad a possibly non-square matrix to make it square.
+    # def pad_matrix(self, matrix, pad_value=0):
+    #     """
+    #     Pad a possibly non-square matrix to make it square.
 
-        :Parameters:
-            matrix : list of lists
-                matrix to pad
+    #     :Parameters:
+    #         matrix : list of lists
+    #             matrix to pad
 
-            pad_value : int
-                value to use to pad the matrix
+    #         pad_value : int
+    #             value to use to pad the matrix
 
-        :rtype: list of lists
-        :return: a new, possibly padded, matrix
-        """
-        max_columns = 0
-        total_rows = len(matrix)
+    #     :rtype: list of lists
+    #     :return: a new, possibly padded, matrix
+    #     """
+    #     max_columns = 0
+    #     total_rows = len(matrix)
 
-        for row in matrix:
-            max_columns = max(max_columns, len(row))
+    #     for row in matrix:
+    #         max_columns = max(max_columns, len(row))
 
-        total_rows = max(max_columns, total_rows)
+    #     total_rows = max(max_columns, total_rows)
 
-        new_matrix = []
-        for row in matrix:
-            row_len = len(row)
-            new_row = row[:]
-            if total_rows > row_len:
-                # Row too short. Pad it.
-                new_row += [0] * (total_rows - row_len)
-            new_matrix += [new_row]
+    #     new_matrix = []
+    #     for row in matrix:
+    #         row_len = len(row)
+    #         new_row = row[:]
+    #         if total_rows > row_len:
+    #             # Row too short. Pad it.
+    #             new_row += [0] * (total_rows - row_len)
+    #         new_matrix += [new_row]
 
-        while len(new_matrix) < total_rows:
-            new_matrix += [[0] * total_rows]
+    #     while len(new_matrix) < total_rows:
+    #         new_matrix += [[0] * total_rows]
 
-        return new_matrix
+    #     return new_matrix
 
     def compute(self, cost_matrix):
         """
@@ -385,7 +385,8 @@ class Munkres:
                  cost path through the matrix
 
         """
-        self.C = self.pad_matrix(cost_matrix)
+        # self.C = self.pad_matrix(cost_matrix)
+        self.C = self.__copy_matrix(cost_matrix)
         self.n = len(self.C)
         self.original_length = len(cost_matrix)
         self.original_width = len(cost_matrix[0])
@@ -413,6 +414,9 @@ class Munkres:
             except KeyError:
                 done = True
 
+        print "Done!"
+        print ""
+
         # Look for the starred columns
         results = []
         for i in xrange(0, self.original_length):
@@ -421,6 +425,19 @@ class Munkres:
                     results += [(i, j)]
 
         return results
+
+    def __printCovering(self):
+        coverMatrix = []
+        for i in self.row_covered:
+            row = []
+            for j in self.col_covered:
+                if (i or j):
+                    row.append(1)
+                else:
+                    row.append(0)
+            coverMatrix.append(row)
+        print ""
+        print_matrix(coverMatrix, "Current covering:")
 
     def __copy_matrix(self, matrix):
         """Return an exact copy of the supplied matrix"""
@@ -438,6 +455,9 @@ class Munkres:
         For each row of the matrix, find the smallest element and
         subtract it from every element in its row. Go to Step 2.
         """
+
+        print ""
+        print "Step 1: Row reduction"
         C = self.C
         n = self.n
         for i in xrange(0, n):
@@ -451,6 +471,7 @@ class Munkres:
             for j in xrange(0, n):
                 self.C[i][j] -= minval
 
+        print_matrix(self.C)
         return 2
 
     def __step2(self):
@@ -459,6 +480,9 @@ class Munkres:
         zero in its row or column, star Z. Repeat for each element in the
         matrix. Go to Step 3.
         """
+
+        print ""
+        print "Step 2: Finding an initial matching..."
         n = self.n
         count = 0
         covered_rows = [] # keep track of covered rows so you can clear them
@@ -475,9 +499,13 @@ class Munkres:
                         count += 1
                         break # found a zero to star, so you can go to the next row (i think??)
 
+        print_matrix(self.marked)
+
         # self.__clear_covers() # why?? May just need to clear the rows:
         for i in covered_rows:
             self.row_covered[i] = False
+
+        self.__printCovering()
 
         # return 3
         if count >= n:
@@ -490,10 +518,13 @@ class Munkres:
 
     def __step3(self):
         """
-        Cover each column containing a starred zero. If K columns are
+        Cover each column containing a starred zero. If n columns are
         covered, the starred zeros describe a complete set of unique
         assignments. In this case, Go to DONE, otherwise, Go to Step 4.
         """
+
+        print ""
+        print "Step 3"
         n = self.n
         count = 0
         for i in xrange(0, n):
@@ -517,12 +548,16 @@ class Munkres:
         zero. Continue in this manner until there are no uncovered zeros
         left.
         """
+
+        print ""
+        print "Step 4: ",
         step = 0
         done = False
         row = -1
         col = -1
         star_col = -1
         while not done:
+            print "Finding a noncovered zero to prime.."
             (row, col) = self.__find_a_zero()
             if row < 0:
                 done = True
@@ -530,12 +565,20 @@ class Munkres:
             else:
                 # Found a noncovered zero
                 self.marked[row][col] = 2 # Prime the noncovered zero
+                print "--> Primed (%d, %d)" % (row,col)
+                print_matrix(self.marked)
+                print ""
+                print "--> Finding a star in row %d..." % row
                 star_col = self.__find_star_in_row(row)
                 if star_col >= 0:
+                    print "--> Found star at (%d, %d)" % (row, star_col)
+                    print "--> Updating covering..."
                     col = star_col
                     self.row_covered[row] = True
                     self.col_covered[col] = False
+                    self.__printCovering()
                 else:
+                    print "--> No star"
                     # There is no starred zero in the row
                     done = True
                     # Save the location of the non/uncovered primed zero
@@ -556,23 +599,30 @@ class Munkres:
         of the series, star each primed zero of the series, erase all
         primes and uncover every line in the matrix. Return to Step 3
         """
+
+        print ""
+        print "Step 5: Creating a path..."
         count = 0
         path = self.path
         path[count][0] = self.Z0_r
         path[count][1] = self.Z0_c
+        print "--> Added (%d, %d) to path" % (self.Z0_r, self.Z0_c)
         done = False
         while not done:
             row = self.__find_star_in_col(path[count][1])
             if row >= 0:
                 count += 1
+                print "--> Added (%d, %d) to path" % (row, path[count-1][1])
                 path[count][0] = row
                 path[count][1] = path[count-1][1]
             else:
+                print "-->Done constructing path"
                 done = True
 
             if not done:
                 col = self.__find_prime_in_row(path[count][0])
                 count += 1
+                print "--> Added (%d, %d) to path" % (path[count-1][0], col)
                 path[count][0] = path[count-1][0]
                 path[count][1] = col
 
@@ -590,6 +640,9 @@ class Munkres:
         Return to Step 4 without altering any stars, primes, or covered
         lines.
         """
+
+        print ""
+        print "Step 6: Subtract/Add min noncovered val"
         minval = self.__find_smallest()
         for i in xrange(0, self.n):
             for j in xrange(0, self.n):     
@@ -597,9 +650,8 @@ class Munkres:
                     self.C[i][j] += minval
                 if not self.col_covered[j]:
                     self.C[i][j] -= minval
-                    if self.C[i][j] < 0:
-                        print "-1"
-                        print "end" + 1
+
+        print_matrix(self.C, "New cost matrix:")
         return 4
 
     def __find_smallest(self):
@@ -631,9 +683,11 @@ class Munkres:
                     row = i
                     col = j
                     done = True
-                j += 1
-                if j >= n:
                     break
+                else:
+                    j += 1
+                    if j >= n:
+                        break
             i += 1
             if i >= n:
                 done = True
@@ -656,7 +710,7 @@ class Munkres:
     def __find_star_in_col(self, col):
         """
         Find the first starred element in the specified col. Returns
-        the col index, or -1 if no starred element was found.
+        the row index, or -1 if no starred element was found.
         """
         row = -1
         for i in xrange(0, self.n):
@@ -758,7 +812,7 @@ def print_matrix(matrix, msg=None):
     width = 0
     for row in matrix:
         for val in row:
-            width = max(width, int(math.log10(val)) + 1)
+            width = max(width, int(math.log10(val+1)) + 1)
 
     # Make the format string
     format = '%%%dd' % width
