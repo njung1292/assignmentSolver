@@ -13,7 +13,7 @@ class DataGen:
     def generateNames(self):
         """Returns a list of unique strings representing student names."""
 
-        print "Generating names...",
+        print "> Generating names...",
 
         k = 0
         names = []
@@ -28,7 +28,7 @@ class DataGen:
     def generateRanks(self):
         """Returns a 2D list of top 5 seminars for each student."""
 
-        print "Generating rankings...",
+        print "> Generating rankings...",
 
         bigList   = []
         numFall   = len(self.fallList)

@@ -1,5 +1,6 @@
 from collections import Counter
 import operator
+from myMunkres import print_matrix
 
 class Data:
     """ Class that contains data (e.g. names, number of students, seminar lists)"""
@@ -23,11 +24,14 @@ class Data:
             for j in xrange(0, len(self.topFives[0])):
                 seminarDict[self.topFives[i][j]] += 1
         self.popularSeminars = seminarDict.most_common()
+        print "> Popular seminars: "
+        print "> " + str(self.popularSeminars)
+        print ""
 
     def makeMatrix(self):
         """Convert top five rankings (n x m) into an (n x n) matrix."""
 
-        print "Converting rankings to matrix form...",
+        print "> Converting rankings to matrix form...",
 
         rankMatrix = []
         seminarSize = self.numStudents / self.numSeminars
@@ -49,20 +53,19 @@ class Data:
         print "Done"
         return rankMatrix
 
-    def indexToSeminar(self, i):
-        """Converts a rank matrix index to the seminar name."""
+    def columnToSeminar(self, col):
+        """Converts a rank matrix column to the seminar name."""
 
         seminarSize = self.numStudents / self.numSeminars
-        row = i / self.numSeminars
-        col = i % self.numSeminars
-        if (row == seminarSize):
-            return self.popularSeminars[col][0]
+        c = col % self.numSeminars
+        if ((col / self.numSeminars) >= seminarSize):
+            return self.popularSeminars[c][0]
         else:
-            return self.yearList[col]
+            return self.yearList[c]
 
-    def __getRank(seminar, topSeminars):
+    def __getRank(self, seminar, topSeminars):
         """Returns a students ranking of a given seminar"""
-        
+
         try:
             return topSeminars.index(seminar) + 1
         except ValueError:
