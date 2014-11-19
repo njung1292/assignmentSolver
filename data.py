@@ -3,6 +3,7 @@ import operator
 
 class Data:
     """ Class that contains data (e.g. names, number of students, seminar lists)"""
+
     def __init__(self, names, topFives, fallList, springList):
         """Create a new instance"""
 
@@ -28,13 +29,6 @@ class Data:
 
         print "Converting rankings to matrix form...",
 
-        # Helper function to return a students ranking of a given seminar
-        def getRank(seminar, topSeminars):
-            try:
-                return topSeminars.index(seminar) + 1
-            except ValueError:
-                return 100
-
         rankMatrix = []
         seminarSize = self.numStudents / self.numSeminars
         for i in xrange(0, self.numStudents):
@@ -42,14 +36,14 @@ class Data:
             count = 0
             for seminar in self.yearList:
                 if (count < 5):
-                    row.append(getRank(seminar, self.topFives[i]))
+                    row.append(self.__getRank(seminar, self.topFives[i]))
                 else:
                     numRemaining = self.numSeminars - i
                     row += [100]*numRemaining
             row *= seminarSize
             numExtra = self.numStudents % self.numSeminars
             for popularSeminar in self.popularSeminars[0:numExtra]:
-                row.append(getRank(popularSeminar[0], self.topFives[i]))
+                row.append(self.__getRank(popularSeminar[0], self.topFives[i]))
             rankMatrix.append(row)
 
         print "Done"
@@ -65,3 +59,11 @@ class Data:
             return self.popularSeminars[col][0]
         else:
             return self.yearList[col]
+
+    def __getRank(seminar, topSeminars):
+        """Returns a students ranking of a given seminar"""
+        
+        try:
+            return topSeminars.index(seminar) + 1
+        except ValueError:
+            return 100
