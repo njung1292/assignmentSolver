@@ -1,6 +1,5 @@
 from collections import Counter
 import operator
-from myMunkres import print_matrix
 
 class Data:
     """ Class that contains data (e.g. names, number of students, seminar lists)"""
