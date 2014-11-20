@@ -29,27 +29,27 @@ def solve(data):
 
 if __name__ == '__main__':
 
-    # numStudents = 350
-    # fallList    = ['f01','f02','f03','f04','f05','f06','f07','f08','f09','f10','f11']
-    # springList  = ['s01','s02','s03','s04','s05','s06','s07','s08','s09','s10','s11']
+    numStudents = 350
+    fallList    = ['f01','f02','f03','f04','f05','f06','f07','f08','f09','f10','f11']
+    springList  = ['s01','s02','s03','s04','s05','s06','s07','s08','s09','s10','s11']
 
-    numStudents = 100
-    fallList    = ['f01','f02','f03','f04','f05']
-    springList  = ['s01','s02','s03','s04','s05']
+    # numStudents = 100
+    # fallList    = ['f01','f02','f03','f04','f05']
+    # springList  = ['s01','s02','s03','s04','s05']
 
-    # dg       = DataGen(fallList, springList, numStudents)
-    # names    = dg.generateNames()
-    # topFives = dg.generateRanks()
+    dg       = DataGen(fallList, springList, numStudents)
+    names    = dg.generateNames()
+    topFives = dg.generateRanks()
 
-    numStudents = 5
-    fallList    = ['f01', 'f02']
-    springList  = ['s01', 's02']
-    names       = ['A', 'B', 'C', 'D', 'E']
-    topFives    = [['s01', 'f01', 's02'],
-                   ['s02', 'f02', 'f01'],
-                   ['f02', 's02', 's01'],
-                   ['s01', 'f02', 's02'],
-                   ['f01', 's01', 's02']]
+    # numStudents = 5
+    # fallList    = ['f01', 'f02']
+    # springList  = ['s01', 's02']
+    # names       = ['A', 'B', 'C', 'D', 'E']
+    # topFives    = [['s01', 'f01', 's02'],
+    #                ['s02', 'f02', 'f01'],
+    #                ['f02', 's02', 's01'],
+    #                ['s01', 'f02', 's02'],
+    #                ['f01', 's01', 's02']]
 
     data     = Data(names, topFives, fallList, springList)
     solution = solve(data)
