@@ -1,4 +1,5 @@
 from collections import Counter
+import logging
 import operator
 
 class Data:
@@ -23,14 +24,12 @@ class Data:
             for j in range(len(self.topFives[0])):
                 seminarDict[self.topFives[i][j]] += 1
         self.popularSeminars = seminarDict.most_common()
-        print "> Popular seminars: "
-        print "> " + str(self.popularSeminars)
-        print ""
+        logging.debug("Popular seminars: " + str(self.popularSeminars))
 
     def makeMatrix(self):
         """Convert top five rankings (n x m) into an (n x n) matrix."""
 
-        print "> Converting rankings to matrix form...",
+        logging.info("Converting rankings to matrix form...")
 
         rankMatrix = []
         seminarSize = self.numStudents / self.numSeminars
@@ -49,7 +48,6 @@ class Data:
                 row.append(self.__getRank(popularSeminar[0], self.topFives[i]))
             rankMatrix.append(row)
 
-        print "Done"
         return rankMatrix
 
     def columnToSeminar(self, col):
