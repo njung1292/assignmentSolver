@@ -335,7 +335,7 @@ class Munkres:
             else:
                 # Found a noncovered zero
                 self.marked[row][col] = 2 # Prime the noncovered zero
-                self.primes.append([row,col])
+                self.primes.append([row,col]) # Add to the list of primes
                 print "--> Primed (%d, %d)" % (row,col)
                 print_matrix(self.marked)
                 print ""
