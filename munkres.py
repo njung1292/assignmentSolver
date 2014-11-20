@@ -278,6 +278,8 @@ __docformat__ = 'restructuredtext'
 
 import sys
 import copy
+import logging
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Exports
@@ -306,6 +308,7 @@ class Munkres:
     See the module documentation for usage.
     """
 
+    
     def __init__(self):
         """Create a new instance"""
         self.C = None
@@ -316,6 +319,7 @@ class Munkres:
         self.Z0_c = 0
         self.marked = None # Cell values: 1:=starred, 2:=primed, 0:=none
         self.path = None
+
 
     def make_cost_matrix(profit_matrix, inversion_function):
         """
@@ -422,6 +426,46 @@ class Munkres:
 
         return results
 
+    def __print_marked(self, msg):
+        if (not logger.isEnabledFor(logging.DEBUG)):
+            return
+        logging.debug(msg)
+        matrix = []
+        for row in self.marked:
+            log_row = []
+            for val in row:
+                if val == 0:
+                    log_row.append("  ")
+                elif val == 1:
+                    log_row.append("0*")
+                else:
+                    log_row.append("0\"")
+            matrix.append(log_row)
+
+        for row in matrix:
+            logging.debug(row)
+        logging.debug("")
+
+    def __print_covering(self):
+        if (not logger.isEnabledFor(logging.DEBUG)):
+            return
+        logging.debug("Updated covering:")
+        matrix = []
+        for i in range(len(self.row_covered)):
+            row = []
+            for j in range(len(self.col_covered)):
+                if (self.row_covered[i] or self.col_covered[j]):
+                    row.append("##")
+                elif (self.C[i][j]==0):
+                    row.append(" 0")
+                else:
+                    row.append("  ")
+            matrix.append(row)
+
+        for row in matrix:
+            logging.debug(row)
+        logging.debug("")
+
     def __copy_matrix(self, matrix):
         """Return an exact copy of the supplied matrix"""
         return copy.deepcopy(matrix)
@@ -438,6 +482,7 @@ class Munkres:
         For each row of the matrix, find the smallest element and
         subtract it from every element in its row. Go to Step 2.
         """
+        logging.info("\n  Step 1: Reducing rows...")
         C = self.C
         n = self.n
         for i in range(n):
@@ -448,6 +493,7 @@ class Munkres:
             for j in range(n):
                 self.C[i][j] -= minval
 
+        print_matrix(self.C, "Reduced matrix:")
         return 2
 
     def __step2(self):
@@ -456,6 +502,7 @@ class Munkres:
         zero in its row or column, star Z. Repeat for each element in the
         matrix. Go to Step 3.
         """
+        logging.info("\n  Step 2: Finding an initial matching...")
         n = self.n
         for i in range(n):
             for j in range(n):
@@ -466,6 +513,8 @@ class Munkres:
                     self.col_covered[j] = True
                     self.row_covered[i] = True
 
+        self.__print_marked("Initial matching:")
+
         self.__clear_covers()
         return 3
 
@@ -475,6 +524,7 @@ class Munkres:
         covered, the starred zeros describe a complete set of unique
         assignments. In this case, Go to DONE, otherwise, Go to Step 4.
         """
+        logging.info("\n  Step 3: Covering each column containing a 0*...")
         n = self.n
         count = 0
         for i in range(n):
@@ -483,8 +533,11 @@ class Munkres:
                     self.col_covered[j] = True
                     count += 1
 
+        self.__print_covering()
+
         if count >= n:
             step = 7 # done
+            logging.info("")
         else:
             step = 4
 
@@ -498,30 +551,38 @@ class Munkres:
         zero. Continue in this manner until there are no uncovered zeros
         left. Save the smallest uncovered value and Go to Step 6.
         """
+        logging.info("\n  Step 4: Updating matrix...")
         step = 0
         done = False
         row = -1
         col = -1
         star_col = -1
         while not done:
+            logging.debug("Finding a noncovered 0 to prime...")
             # Find a noncovered 0
             (row, col) = self.__find_a_zero()
             if row < 0:
+                logging.debug("   > Could not find a noncovered 0")
                 done = True
                 step = 6
             else:
                 # Found a noncovered 0
                 self.marked[row][col] = 2 # Prime the noncovered 0
-                # Find a 0* 
+                self.__print_marked("   > Found (%d, %d):\n" % (row,col))
+                # Find a 0*
+                logging.debug("Finding a 0* in row %d...", row)
                 star_col = self.__find_star_in_row(row)
                 if star_col >= 0:
                     # Found a 0* in the same row
                     col = star_col
+                    logging.debug("   > Found a 0* at (%d, %d)\n", row, star_col)
                     # Update the covering
                     self.row_covered[row] = True
                     self.col_covered[col] = False
+                    self.__print_covering()
                 else:
                     # Could not find a 0* in the same row
+                    logging.debug("   > Could not find a 0*")
                     done = True
                     # Save the location of the noncovered 0'
                     self.Z0_r = row
@@ -541,15 +602,18 @@ class Munkres:
         of the series, star each primed zero of the series, erase all
         primes and uncover every line in the matrix. Return to Step 3
         """
+        logging.info("\n  Step 5: Constructing a path...")
         count = 0
         path = self.path
         path[count][0] = self.Z0_r
         path[count][1] = self.Z0_c
+        logging.debug("Added (%d, %d) to path", self.Z0_r, self.Z0_c)
         done = False
         while not done:
             row = self.__find_star_in_col(path[count][1])
             if row >= 0:
                 count += 1
+                logging.debug("Added (%d, %d) to path", row, path[count-1][1])
                 path[count][0] = row
                 path[count][1] = path[count-1][1]
             else:
@@ -558,12 +622,14 @@ class Munkres:
             if not done:
                 col = self.__find_prime_in_row(path[count][0])
                 count += 1
+                logging.debug("Added (%d, %d) to path", path[count-1][0], col)
                 path[count][0] = path[count-1][0]
                 path[count][1] = col
 
         self.__convert_path(path, count)
         self.__clear_covers()
         self.__erase_primes()
+        self.__print_covering()
         return 3
 
     def __step6(self):
@@ -573,6 +639,7 @@ class Munkres:
         Return to Step 4 without altering any stars, primes, or covered
         lines.
         """
+        logging.info("\n  Step 6: Subtracting/Adding min noncovered value...")
         minval = self.__find_smallest()
         for i in range(self.n):
             for j in range(self.n):
@@ -580,6 +647,9 @@ class Munkres:
                     self.C[i][j] += minval
                 if not self.col_covered[j]:
                     self.C[i][j] -= minval
+
+        print_matrix(self.C, "New cost matrix:")
+        self.__print_covering()
         return 4
 
     def __find_smallest(self):
@@ -727,27 +797,32 @@ def print_matrix(matrix, msg=None):
         msg : str
             Optional message to print before displaying the matrix
     """
+    if (not logger.isEnabledFor(logging.DEBUG)):
+            return
     import math
 
     if msg is not None:
-        print(msg)
+        logging.debug(msg)
 
     # Calculate the appropriate format width.
     width = 0
     for row in matrix:
         for val in row:
-            width = max(width, int(math.log10(val)) + 1)
+            width = max(width, int(math.log10(max(val,1))) + 1)
 
     # Make the format string
     format = '%%%dd' % width
 
     # Print the matrix
+
+    printout = ""
     for row in matrix:
         sep = '['
         for val in row:
-            sys.stdout.write(sep + format % val)
+            printout += sep + str(format % val)
             sep = ', '
-        sys.stdout.write(']\n')
+        printout += ']\n    '
+    logging.debug(printout)
 
 # ---------------------------------------------------------------------------
 # Main

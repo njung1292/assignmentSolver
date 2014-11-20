@@ -29,7 +29,7 @@ class Data:
     def makeMatrix(self):
         """Convert top five rankings (n x m) into an (n x n) matrix."""
 
-        logging.info("Converting rankings to matrix form...")
+        logging.info("\n  Converting rankings to matrix form...")
 
         rankMatrix = []
         seminarSize = self.numStudents / self.numSeminars
