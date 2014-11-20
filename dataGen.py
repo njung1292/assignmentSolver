@@ -17,8 +17,8 @@ class DataGen:
 
         k = 0
         names = []
-        for i in xrange(97,123):
-            for j in xrange(97,111):
+        for i in range(97,123):
+            for j in range(97,111):
                 names.append(str(unichr(i))+str(unichr(j)))
                 k += 1
                 if (k == self.numStudents):

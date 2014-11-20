@@ -19,8 +19,8 @@ class Data:
 
         # Rank the seminars by popularity
         seminarDict = Counter()
-        for i in xrange(0, self.numStudents):
-            for j in xrange(0, len(self.topFives[0])):
+        for i in range(self.numStudents):
+            for j in range(len(self.topFives[0])):
                 seminarDict[self.topFives[i][j]] += 1
         self.popularSeminars = seminarDict.most_common()
         print "> Popular seminars: "
@@ -34,7 +34,7 @@ class Data:
 
         rankMatrix = []
         seminarSize = self.numStudents / self.numSeminars
-        for i in xrange(0, self.numStudents):
+        for i in range(self.numStudents):
             row   = []
             count = 0
             for seminar in self.yearList:
