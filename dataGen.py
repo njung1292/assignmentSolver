@@ -1,4 +1,5 @@
 import random
+import logging
 
 class DataGen:
     """Class that randomly generates data."""
@@ -13,7 +14,7 @@ class DataGen:
     def generateNames(self):
         """Returns a list of unique strings representing student names."""
 
-        print "> Generating names...",
+        logging.info("Generating names...")
 
         k = 0
         names = []
@@ -22,13 +23,11 @@ class DataGen:
                 names.append(str(unichr(i))+str(unichr(j)))
                 k += 1
                 if (k == self.numStudents):
-                    print "Done"
                     return names
 
     def generateRanks(self):
         """Returns a 2D list of top 5 seminars for each student."""
-
-        print "> Generating rankings...",
+        logging.info("Generating rankings...")
 
         bigList   = []
         numFall   = len(self.fallList)
@@ -64,7 +63,6 @@ class DataGen:
             random.shuffle(myList)
             bigList.append(myList)
 
-        print "Done"
         return bigList
 
 
