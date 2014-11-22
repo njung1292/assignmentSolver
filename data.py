@@ -21,7 +21,7 @@ class Data:
         # Rank the seminars by popularity
         seminarDict = Counter()
         for i in range(self.numStudents):
-            for j in range(len(self.topFives[0])):
+            for j in range(len(self.topFives[i])):
                 seminarDict[self.topFives[i][j]] += 1
         self.popularSeminars = seminarDict.most_common()
         logging.debug("Popular seminars: " + str(self.popularSeminars))
@@ -36,16 +36,20 @@ class Data:
         for i in range(self.numStudents):
             row   = []
             count = 0
+            topSeminars = self.topFives[i]
             for seminar in self.yearList:
                 if (count < 5):
-                    row.append(self.__getRank(seminar, self.topFives[i]))
+                    rank = self.__getRank(seminar, topSeminars)
+                    row.append(rank)
+                    if (rank != 100):
+                        count += 1
                 else:
                     numRemaining = self.numSeminars - i
                     row += [100]*numRemaining
             row *= seminarSize
             numExtra = self.numStudents % self.numSeminars
             for popularSeminar in self.popularSeminars[0:numExtra]:
-                row.append(self.__getRank(popularSeminar[0], self.topFives[i]))
+                row.append(self.__getRank(popularSeminar[0], topSeminars))
             rankMatrix.append(row)
 
         return rankMatrix
@@ -62,7 +66,6 @@ class Data:
 
     def __getRank(self, seminar, topSeminars):
         """Returns a students ranking of a given seminar"""
-
         try:
             return topSeminars.index(seminar) + 1
         except ValueError:
