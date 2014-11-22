@@ -16,15 +16,16 @@ surveyMonkeySht = surveyMonkeyBk.add_sheet("Sheet1")
 # Initialize surveyMonkeySht
 surveyMonkeySht.write(0,0,"RespondentID")
 surveyMonkeySht.write(0,1,"CollectorID")
-surveyMonkeySht.write(0,2,"EndDate")
-surveyMonkeySht.write(0,3,"IP Address")
-surveyMonkeySht.write(0,4,"Email Address")
-surveyMonkeySht.write(0,5,"First Name")
-surveyMonkeySht.write(0,6,"Last Name")
-surveyMonkeySht.write(0,7,"Custom Data")
-surveyMonkeySht.write(0,8,"Ranking results")
+surveyMonkeySht.write(0,2,"Start Date")
+surveyMonkeySht.write(0,3,"EndDate")
+surveyMonkeySht.write(0,4,"IP Address")
+surveyMonkeySht.write(0,5,"Email Address")
+surveyMonkeySht.write(0,6,"First Name")
+surveyMonkeySht.write(0,7,"Last Name")
+surveyMonkeySht.write(0,8,"Custom Data")
+surveyMonkeySht.write(0,9,"Ranking results")
 for i in xrange(num_seminars):
-	surveyMonkeySht.write(1,8+i,SEMINAR_LIST[i])
+	surveyMonkeySht.write(1,9+i,SEMINAR_LIST[i])
 
 # Get raw ranking values
 num_rows = responseSht.nrows - 1
@@ -36,13 +37,14 @@ vals = []
 # Put raw ranking values into arrays
 p = re.compile("(\d*)[^\d]*")
 for resp in responses:
-	matches = [int(c) for c in p.findall(resp) if len(c)>0]
+	matches = [int(c) for c in p.findall(resp) if c!='']
+	# print matches
 	vals.append(matches)
 
 # Write ranking values into spreadsheet
 for i in range(len(vals)):
 	surveyMonkeySht.write(2+i,0,i+1)
 	for j in range(len(vals[i])):
-		surveyMonkeySht.write(2+i,7+vals[i][j],j+1)
+		surveyMonkeySht.write(2+i,8+vals[i][j],j+1)
 
 surveyMonkeyBk.save("FS_response_data_formatted.xls")
