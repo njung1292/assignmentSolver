@@ -1,27 +1,30 @@
 import solve
 import argparse
 import logging
-from collections import Counter
-from dataGen import DataGen
 from data import Data
+from collections import Counter
 
 
 def test(num_students, num_seminars):
-    dg = DataGen(num_students, num_seminars)
-    data = Data(dg.generate_names(), dg.generate_top_fives(), dg.fs, dg.ss)
-    solution = solve.solve(data)
-
-    # Verify the values of the solution
-    for i in range(num_students):
-        assert solution[i][1] == data.year_list[data.top_fives[i][solution[i][2]-1]]
+    # data = dataGen.make_data(num_students, num_seminars)
+    data = Data.factory(num_students, num_seminars)
+    
+    solution = solve.solve(data)[0]
 
     # Verify the class sizes
     seminar_ctr = Counter()
     for decision in solution:
         seminar_ctr[decision[1]] += 1
+    sorted_sems = sorted(seminar_ctr.items())
+    print "Class sizes: "
+    for name, count in sorted_sems:
+        print '%s: %d' % (name, count)
+    # print [seminar_ctr.items()[i][0] for i in range(num_extra)]
     num_extra = num_students % num_seminars
-    print seminar_ctr
-    print [data.year_list[i[0]] for i in data.popular_seminars[0:num_extra]]
+    popular_seminars = sorted(data.popular_seminars[0:num_extra])
+    print "\nAdded seminars (class: popularity):"
+    for idx, count in popular_seminars:
+        print '%s: %d' % (data.year_list[idx], count)
 
     # if lvl == 1:
     #     num_students1 = 5
