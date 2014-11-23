@@ -64,7 +64,7 @@ def main(args):
         s1.write(i+1,1,solution[i][1])
         s1.write(i+1,2,solution[i][2])
 
-    sb.save(args.filename[:-4]+"_results.xls")
+    sb.save("test\ data/" + args.filename[:-4]+"_results.xls")
 
 
 if __name__ == '__main__':
