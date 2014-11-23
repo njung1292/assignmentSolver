@@ -7,7 +7,7 @@ import re
 SEMINAR_LIST = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"]
 num_seminars = len(SEMINAR_LIST)
 
-responseBk = xlrd.open_workbook('FS_response_data.xlsx')
+responseBk = xlrd.open_workbook("test\ data/FS_response_data.xlsx")
 responseSht = responseBk.sheet_by_name("Sheet1")
 
 surveyMonkeyBk = xlwt.Workbook(encoding = "utf-8")
@@ -47,4 +47,4 @@ for i in range(len(vals)):
 	for j in range(len(vals[i])):
 		surveyMonkeySht.write(2+i,8+vals[i][j],j+1)
 
-surveyMonkeyBk.save("FS_response_data_formatted.xls")
+surveyMonkeyBk.save("test\ data/FS_response_data_formatted.xls")
