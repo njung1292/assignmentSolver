@@ -1,7 +1,5 @@
-from collections import Counter
 from munkres import Munkres
-from data import Data
-from data_b import Data_b
+import data
 import xlwt
 import xlrd
 import logging
@@ -10,27 +8,26 @@ import time
 
 def solve(data):
     """Applies the Hungarian algorithm to the data."""
-    start = time.clock() # Start timing computation time
-    rm = data.make_matrix()
+    start = time.clock() # Start timer
     m = Munkres()
-    # rm = data.rank_matrix
+    rm = data.rank_matrix
     logging.info("Solving...")
     indexes = m.compute(rm)
     end = time.clock() # Stop timer
+    print '--> Time elapsed: %f' % (end - start)
     
     solution = []
     total = 0
     i = 0
-    print "Solution:"
+    logging.debug("Solution:")
     for row, column in indexes:
         value = rm[row][column]
         solution.append([data.names[row], data.col_to_sem(column), value])
         total += value
-        print ' (%d) %s -> %s' % (value, solution[i][0], solution[i][1])
+        logging.debug(' (%d) %s -> %s', value, solution[i][0], solution[i][1])
         i += 1 
-    print '  --> Total cost    : %d' % total
-    print '  --> Time elapsed  : %f' % (end - start)
-    return solution
+    print '--> Total cost: %d' % total
+    return (solution, total)
 
 def main(args):
     # Read XLS into Data object
@@ -50,22 +47,24 @@ def main(args):
 
     # Create a Data object and apply the hungarian algorithm
     data = Data_b(rank_matrix, seminar_list)
-    solution = solve(data)
+    (solution, cost) = solve(data)
     
     # Initialize the Excel workbook and sheet
     sb = xlwt.Workbook(encoding = "utf-8")
     s1 = sb.add_sheet("Results")
 
-    s1.write(0,0,"Student")
-    s1.write(0,1,"Seminar")
-    s1.write(0,2,"Original Ranking")
+    s1.write(0, 0, "Student")
+    s1.write(0, 1, "Seminar")
+    s1.write(0, 2, "Original Ranking")
+    s1.write(0, 3, "Minimum Cost")
+    s1.write(1, 3, cost)
 
     for i in range(len(solution)):
         s1.write(i+1,0,solution[i][0])
         s1.write(i+1,1,solution[i][1])
         s1.write(i+1,2,solution[i][2])
 
-    sb.save(args.filename+"_results.xls")
+    sb.save(args.filename[:-4]+"_results.xls")
 
 
 if __name__ == '__main__':
@@ -86,7 +85,7 @@ if __name__ == '__main__':
     parser.add_argument('filename', help="Path to survey response .xls")
     args = parser.parse_args()    
     
-    # logging = logging.getlogging(__name__)
-    # logging.basicConfig(format='    %(message)s', level=args.loglevel)
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(format='    %(message)s', level=args.loglevel)
 
-    # main(args)
+    main(args)
