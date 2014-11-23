@@ -1,96 +1,67 @@
 import random
 import logging
 
+MIN_ORD = 97
+MAX_ORD = 123
+
 class DataGen:
     """Class that randomly generates data."""
 
-    def __init__(self, fallList, springList, numStudents):
+    def __init__(self, num_students, num_seminars):
         """Create a new instance."""
+        self.fs = []    # Fall seminar names
+        self.ss = []    # Spring seminar names
+        self.num_students = num_students
+        self.num_seminars = num_seminars
 
-        self.fallList    = fallList
-        self.springList  = springList
-        self.numStudents = numStudents
+        # Generate a list of fall and spring classes
+        for i in range(num_seminars/2):
+            self.fs.append("F" + str(i+1))
+            self.ss.append("S" + str(i+1))
+        if (num_seminars % 2 == 1):
+            self.fs.append("F" + str(num_seminars/2 + 1))
 
-    def generateNames(self):
+    def generate_names(self):
         """Returns a list of unique strings representing student names."""
-
         logging.info("Generating names...")
 
-        k = 0
+        assert self.num_students < 26*26
+
         names = []
-        for i in range(97,123):
-            for j in range(97,111):
+        for i in range(MIN_ORD, MAX_ORD):
+            for j in range(MIN_ORD, MAX_ORD):
                 names.append(str(unichr(i))+str(unichr(j)))
-                k += 1
-                if (k == self.numStudents):
+                if (len(names) == self.num_students):
                     return names
 
-    def generateRanks(self):
-        """Returns a 2D list of top 5 seminars for each student."""
-        logging.info("Generating rankings...")
+    def generate_top_fives(self):
+        """Returns a 2D list of top 5 seminars (int index) for each student."""
+        logging.info("Generating random top five rankings...")
 
-        bigList   = []
-        numFall   = len(self.fallList)
-        numSpring = len(self.springList)
-        for student in range(0, self.numStudents):
-            myList = []
+        top_fives  = []
+        num_fall   = len(self.fs)
+        num_spring = len(self.ss)
+        for student in range(self.num_students):
+            my_list = []
 
             # fall semester
-            a = random.randint(0, numFall - 1)
-            b = random.randint(0, numFall - 1)
-            while (a == b):
-                b = random.randint(0, numFall - 1)
-            myList.append(self.fallList[a])
-            myList.append(self.fallList[b])
+            assert num_fall > 3
+            f1, f2, r1 = random.sample(range(num_fall), 3)
+            my_list.append(f1)
+            my_list.append(f2)
 
             # spring semester
-            c = random.randint(numFall, numFall + numSpring - 1)
-            d = random.randint(numFall, numFall + numSpring - 1)
-            while (c == d):
-                d = random.randint(numFall, numFall + numSpring - 1)
-            myList.append(self.springList[c - numFall])
-            myList.append(self.springList[d - numFall])
+            assert num_spring > 2
+            s1, s2 = random.sample(range(num_fall, num_fall + num_spring), 2)
+            my_list.append(s1)
+            my_list.append(s2)
 
             # last seminar
-            e = random.randint(0, numFall + numSpring - 1)
-            while (e == a or e == b or e == c or e == d):
-                e = random.randint(0, numFall + numSpring - 1)
-            if (e < numFall):
-                myList.append(self.fallList[e])
-            else:
-                myList.append(self.springList[e - numFall])
-
-            random.shuffle(myList)
-            bigList.append(myList)
-
-        return bigList
-
-
-# def seminarPopularity(bigList, fallList, springList):
-#     yearList = fallList + springList
-#     initial = []
-#     for i in range(len(yearList)):
-#         initial.append((yearList[i], 0))
-#     seminarDict = dict(initial)
-#     for i in range(len(bigList)):
-#         for j in range(len(bigList[0])):
-#             seminarDict[bigList[i][j]] += 1
-#     sorted_seminar = sorted(seminarDict.items(), key=operator.itemgetter(1), reverse = True)
-#     finalList = []
-#     for i in range(len(sorted_seminar)):
-#         finalList.append(sorted_seminar[i][0])
-#     return finalList
+            last_sem = r1 if (r1%2 == 0) else r1 + num_fall - 1
+            assert last_sem < self.num_seminars
+            my_list.append(last_sem)
             
+            random.shuffle(my_list)
+            top_fives.append(my_list)
 
-# totalStudents = 350 
-# fallList = []
-# springList = []
-# for i in xrange(1,13):
-#     fallList.append("f" + str(i))
-#     springList.append("s" + str(i))
-
-
-# bigList = dataGenerator(fallList, springList, totalStudents)
-# seminarPopularity(bigList, fallList, springList)
-        
-    
+        return top_fives
