@@ -12,7 +12,7 @@ class Data_b:
         self.names            = range(1,len(rank_matrix)+1)
         self.num_students     = len(rank_matrix)
         self.num_seminars     = len(year_list)
-        self.popular_seminars = []
+        self.popular_seminars = [] # Most popular seminars (string name, int count)
 
         # Rank the seminars by popularity
         seminar_ctr = Counter()
@@ -22,12 +22,12 @@ class Data_b:
         self.popular_seminars = seminar_ctr.most_common()
         logging.debug("Popular seminars: " + str(self.popular_seminars))
 
-    def columnToSeminar(self, col):
+    def col_to_sem(self, col):
         """Converts a rank matrix column to the seminar name."""
         seminar_size = self.num_students / self.num_seminars
         c = col % self.num_seminars
         if ((col / self.num_seminars) >= seminar_size):
-            return self.popular_seminars[c][0]
+            return self.year_list[self.popular_seminars[c][0]]
         else:
             return self.year_list[c]
 
