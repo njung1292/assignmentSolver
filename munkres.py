@@ -482,7 +482,7 @@ class Munkres:
         For each row of the matrix, find the smallest element and
         subtract it from every element in its row. Go to Step 2.
         """
-        logging.info("\n  Step 1: Reducing rows...")
+        logging.debug("\n  Step 1: Reducing rows...")
         C = self.C
         n = self.n
         for i in range(n):
@@ -502,7 +502,7 @@ class Munkres:
         zero in its row or column, star Z. Repeat for each element in the
         matrix. Go to Step 3.
         """
-        logging.info("\n  Step 2: Finding an initial matching...")
+        logging.debug("\n  Step 2: Finding an initial matching...")
         n = self.n
         for i in range(n):
             for j in range(n):
@@ -524,7 +524,7 @@ class Munkres:
         covered, the starred zeros describe a complete set of unique
         assignments. In this case, Go to DONE, otherwise, Go to Step 4.
         """
-        logging.info("\n  Step 3: Covering each column containing a 0*...")
+        logging.debug("\n  Step 3: Covering each column containing a 0*...")
         n = self.n
         count = 0
         for i in range(n):
@@ -537,7 +537,7 @@ class Munkres:
 
         if count >= n:
             step = 7 # done
-            logging.info("")
+            logging.debug("")
         else:
             step = 4
 
@@ -551,7 +551,7 @@ class Munkres:
         zero. Continue in this manner until there are no uncovered zeros
         left. Save the smallest uncovered value and Go to Step 6.
         """
-        logging.info("\n  Step 4: Updating matrix...")
+        logging.debug("\n  Step 4: Updating matrix...")
         step = 0
         done = False
         row = -1
@@ -602,7 +602,7 @@ class Munkres:
         of the series, star each primed zero of the series, erase all
         primes and uncover every line in the matrix. Return to Step 3
         """
-        logging.info("\n  Step 5: Constructing a path...")
+        logging.debug("\n  Step 5: Constructing a path...")
         count = 0
         path = self.path
         path[count][0] = self.Z0_r
@@ -639,7 +639,7 @@ class Munkres:
         Return to Step 4 without altering any stars, primes, or covered
         lines.
         """
-        logging.info("\n  Step 6: Subtracting/Adding min noncovered value...")
+        logging.debug("\n  Step 6: Subtracting/Adding min noncovered value...")
         minval = self.__find_smallest()
         for i in range(self.n):
             for j in range(self.n):
