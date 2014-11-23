@@ -1,28 +1,25 @@
-import solve
-import argparse
-import logging
-from data import Data
 from collections import Counter
-
+from data import Data
+import argparse, logging
+import solve
 
 def test(num_students, num_seminars):
-    # data = dataGen.make_data(num_students, num_seminars)
     data = Data.factory(num_students, num_seminars)
     
     solution = solve.solve(data)[0]
 
     # Verify the class sizes
+    print "Class sizes: "
     seminar_ctr = Counter()
     for decision in solution:
         seminar_ctr[decision[1]] += 1
     sorted_sems = sorted(seminar_ctr.items())
-    print "Class sizes: "
     for name, count in sorted_sems:
         print '%s: %d' % (name, count)
-    # print [seminar_ctr.items()[i][0] for i in range(num_extra)]
+
+    print "\nAdded seminars (class: popularity):"
     num_extra = num_students % num_seminars
     popular_seminars = sorted(data.popular_seminars[0:num_extra])
-    print "\nAdded seminars (class: popularity):"
     for idx, count in popular_seminars:
         print '%s: %d' % (data.year_list[idx], count)
 

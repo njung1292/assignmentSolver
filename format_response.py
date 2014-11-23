@@ -1,16 +1,15 @@
-import xlrd
-import xlwt
-import re
+import xlrd, xlwt, re
 
-## converts the real data into a format more like Survey Monkey data
+## Converts the real data into a format more like Survey Monkey data
 
-SEMINAR_LIST = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"]
+SEMINAR_LIST = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10",\
+				"F11", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",\
+				"S10"]
 num_seminars = len(SEMINAR_LIST)
 
-responseBk = xlrd.open_workbook("test\ data/FS_response_data.xlsx")
-responseSht = responseBk.sheet_by_name("Sheet1")
-
-surveyMonkeyBk = xlwt.Workbook(encoding = "utf-8")
+responseBk      = xlrd.open_workbook("test data/FS_response_data.xlsx")
+responseSht     = responseBk.sheet_by_name("Sheet1")
+surveyMonkeyBk  = xlwt.Workbook(encoding = "utf-8")
 surveyMonkeySht = surveyMonkeyBk.add_sheet("Sheet1")
 
 # Initialize surveyMonkeySht
@@ -38,7 +37,6 @@ vals = []
 p = re.compile("(\d*)[^\d]*")
 for resp in responses:
 	matches = [int(c) for c in p.findall(resp) if c!='']
-	# print matches
 	vals.append(matches)
 
 # Write ranking values into spreadsheet
@@ -47,4 +45,4 @@ for i in range(len(vals)):
 	for j in range(len(vals[i])):
 		surveyMonkeySht.write(2+i,8+vals[i][j],j+1)
 
-surveyMonkeyBk.save("test\ data/FS_response_data_formatted.xls")
+surveyMonkeyBk.save("test data/FS_response_data_formatted.xls")

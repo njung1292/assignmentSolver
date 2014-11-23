@@ -1,7 +1,5 @@
 from collections import Counter
-import logging
-import operator
-import random
+import logging, operator, random
 
 MIN_ORD = 97
 
@@ -11,9 +9,9 @@ class Data:
     def __init__(self, rank_matrix, year_list):
         """Create a new instance"""
         # Set data fields
-        self.rank_matrix      = []
-        self.year_list        = year_list
         self.names            = range(1, len(rank_matrix)+1)
+        self.year_list        = year_list
+        self.rank_matrix      = []
         self.num_students     = len(rank_matrix)
         self.num_seminars     = len(year_list)
         self.popular_seminars = [] # Most popular seminars (int index, int count)
@@ -28,8 +26,8 @@ class Data:
         logging.debug("Popular seminars: " + str(self.popular_seminars))
 
         # Extend the rank matrix
-        seminar_size = self.num_students / self.num_seminars
         num_extra = self.num_students % self.num_seminars
+        seminar_size = self.num_students / self.num_seminars
         for row in rank_matrix:
             row *= seminar_size
             for popular_seminar in self.popular_seminars[0:num_extra]:
@@ -67,9 +65,9 @@ class Data:
             names[i] = name
 
         # Generate a matrix of seminar rankings for each student
-        rank_matrix = [[]]*num_students
-        num_fall   = len(fall_list)
-        num_spring = len(spring_list)
+        num_fall     = len(fall_list)
+        num_spring   = len(spring_list)
+        rank_matrix  = [[]]*num_students
         seminar_size = num_students / num_seminars
         num_extra = num_students % num_seminars
         for i in range(num_students):

@@ -1,10 +1,7 @@
 from munkres import Munkres
-import data
-import xlwt
-import xlrd
-import logging
-import argparse
-import time
+from data import Data
+import xlwt, xlrd
+import os, logging, argparse, time
 
 def solve(data):
     """Applies the Hungarian algorithm to the data."""
@@ -30,6 +27,7 @@ def solve(data):
     return (solution, total)
 
 def main(args):
+    filename = os.path.basename(args.filename)
     # Read XLS into Data object
     wb = xlrd.open_workbook(args.filename)
     ws = wb.sheet_by_index(0)
@@ -46,7 +44,7 @@ def main(args):
         rank_matrix.append(rank_row)
 
     # Create a Data object and apply the hungarian algorithm
-    data = Data_b(rank_matrix, seminar_list)
+    data = Data(rank_matrix, seminar_list)
     (solution, cost) = solve(data)
     
     # Initialize the Excel workbook and sheet
@@ -64,8 +62,10 @@ def main(args):
         s1.write(i+1,1,solution[i][1])
         s1.write(i+1,2,solution[i][2])
 
-    sb.save("results/" + args.filename[:-4]+"_results.xls")
-
+    result_filename = os.path.splitext(filename)[0]+"_results.xls"
+    result_path = os.path.join("results", result_filename)
+    sb.save(result_path)
+    print "Results saved to " + result_path
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
